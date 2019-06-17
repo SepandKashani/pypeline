@@ -7,9 +7,13 @@
 ### VsCode Settings ===========================================================
 settings.json
 
-### Manually-installed Python Packages ========================================
+### Manually-installed Tools ==================================================
 pyFFS/
 ImoT_tools/
+dependencies/
+include/pybind11
+include/eigen3
+include/fftw3*
 
 ### Pbr template ==============================================================
 AUTHORS

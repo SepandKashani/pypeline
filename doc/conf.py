@@ -48,9 +48,7 @@ def pkg_info() -> Mapping:
 # -- Project information -----------------------------------------------------
 cfg, info = setup_config(), pkg_info()
 project = cfg.get("metadata", "name")
-copyright = (
-    f"{datetime.date.today().year}, Imaging of Things Group (ImoT)"
-)
+copyright = f"{datetime.date.today().year}, Imaging of Things Group (ImoT)"
 author = cfg.get("metadata", "author")
 version = release = info["version"]
 
@@ -85,11 +83,7 @@ autosummary_generate = True
 
 # -- Options for autodoc extension -------------------------------------------
 autodoc_member_order = "bysource"
-autodoc_default_flags = [
-    "members",
-    # 'inherited-members',
-    "show-inheritance",
-]
+autodoc_default_flags = ["members", "inherited-members", "show-inheritance"]
 autodoc_inherit_docstrings = True
 
 # -- Options for intersphinx extension ---------------------------------------

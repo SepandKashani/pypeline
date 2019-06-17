@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # #############################################################################
 # pypeline.sh
@@ -8,12 +8,13 @@
 
 # Setup Pypeline environment + launch shell.
 
-abs_script_dir="$(echo "${PWD}" | python3 -c "
+# We use `bash` for macOS compatibility.
+abs_script_dir="$(echo "${BASH_SOURCE}" | python3 -c "
 import pathlib;
 import sys;
 
 file_path = sys.stdin.readline();
-abs_cwd = pathlib.Path(file_path).absolute();
+abs_cwd = pathlib.Path(file_path).parent.absolute();
 
 print(abs_cwd);
 ")"
@@ -60,6 +61,17 @@ load_pypeline_env() {
     # CasaCore: add <miniconda_root>/lib/ to LD_LIBRARY_PATH for libtinfow.so
     local miniconda_root="$(dirname "$(dirname "$(which conda)")")"
     export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${miniconda_root}/lib"
+
+    # libpypeline.so + Python3 Extension Modules: add <project_root>/lib[64]/ to PYTHONPATH, LD_LIBRARY_PATH
+    local project_root="${abs_script_dir}"
+    local project_lib_dir="${project_root}/lib"
+    local project_lib64_dir="${project_root}/lib64"
+    export PYTHONPATH="${PYTHONPATH}:${project_lib_dir}:${project_lib64_dir}"
+    export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${project_lib_dir}:${project_lib64_dir}"
+
+    # MKL + OpenMP
+    export OMP_NUM_THREADS=4
+    export MKL_VML_MODE=VML_LA,VML_FTZDAZ_ON,VML_ERRMODE_EXCEPT
 }
 
 if [ "${#}" -eq 1 ] && [ "${1}" = '-h' ]; then

@@ -13,8 +13,10 @@
 
 python == 3.6.*
 astropy == 3.1.*
+cmake == 3.11.*
 ipython == 7.5.*
 matplotlib == 3.1.*
+mkl-devel == 2019.4.*
 ncurses == 5.9.*
 numexpr == 2.6.*
 numpy == 1.16.*

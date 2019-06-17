@@ -12,3 +12,5 @@ General
    :maxdepth: 1
 
    install
+   programming_guide
+   known_issues
