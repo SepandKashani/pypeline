@@ -70,11 +70,11 @@ add_executable(test test.cpp)
 target_link_libraries(test pypeline)
 
 ## Python Extension Modules ---------------------------------------------------
-pybind11_add_module  (_pyFFS ${PROJECT_SOURCE_DIR}/pybind11/_pyFFS.cpp)
-target_link_libraries(_pyFFS PRIVATE pypeline)
+pybind11_add_module  (_test ${PROJECT_SOURCE_DIR}/pybind11/_test.cpp)
+target_link_libraries(_test PRIVATE pypeline)
 
 ### Install Build Targets to lib64/ ===========================================
 install(TARGETS  pypeline
-                _pyFFS
+                _test
         LIBRARY
         DESTINATION "${PROJECT_SOURCE_DIR}/lib64/")
