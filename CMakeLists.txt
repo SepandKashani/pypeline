@@ -67,7 +67,7 @@ endif(${PYPELINE_USE_OPENMP})
 
 ## C++ Executables ------------------------------------------------------------
 add_executable(test test.cpp)
-target_link_libraries(test pypeline)
+target_link_libraries(test pypeline pybind11::embed)  # Necessary if including Python interpreter in C++ executables.
 
 ## Python Extension Modules ---------------------------------------------------
 pybind11_add_module  (_test ${PROJECT_SOURCE_DIR}/pybind11/_test.cpp)

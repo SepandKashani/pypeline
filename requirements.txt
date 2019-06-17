@@ -19,6 +19,7 @@ numexpr == 2.6.*
 numpy == 1.16.*
 pandas == 0.24.*
 plotly == 3.5.*
+pybind11 == 2.3.0  # for Python3 developer headers
 pyffs == 1.0
 pyproj == 1.9.*
 pytest == 4.5.*
