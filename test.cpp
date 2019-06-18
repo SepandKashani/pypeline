@@ -10,6 +10,7 @@
 #include "eigen3/Eigen/Eigen"
 
 #include "pypeline/ffs.hpp"
+#include "pypeline/func.hpp"
 #include "pypeline/linalg.hpp"
 #include "pypeline/util.hpp"
 
@@ -91,6 +92,26 @@ void test_z_rot2angle() {
     std::cout << std::endl;
 }
 
+void test_Tukey() {
+    namespace _func = pypeline::func;
+
+    double const T = 1;
+    double const beta = 0.5;
+    double const alpha = 0.25;
+    pypeline::ArrayX_t<double> _x = pypeline::ArrayX_t<double>::LinSpaced(25, 0, 1);
+    Eigen::Map<pypeline::ArrayXX_t<double>> x(_x.data(), 5, 5);
+
+    auto tukey_d = _func::Tukey<double>(T, beta, alpha);
+    std::cout << tukey_d.__repr__() << "(x)" << std::endl;
+    std::cout << tukey_d(x) << std::endl;
+    std::cout << std::endl;
+
+    auto tukey_f = _func::Tukey<float>(T, beta, alpha);
+    std::cout << tukey_f.__repr__() << "(x)" << std::endl;
+    std::cout << tukey_f(x.cast<float>()) << std::endl;
+    std::cout << std::endl;
+}
+
 int main() {
     pybind11::scoped_interpreter guard{};
 
@@ -104,6 +125,9 @@ int main() {
 
     // pypeline/linalg.hpp
     test_z_rot2angle();
+
+    // pypeline/func.hpp
+    test_Tukey();
 
     return 0;
 }
