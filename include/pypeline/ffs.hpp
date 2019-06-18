@@ -11,8 +11,14 @@
 #ifndef PYPELINE_FFS_HPP
 #define PYPELINE_FFS_HPP
 
+#include <stdexcept>
+#include <string>
+
+#include "eigen3/Eigen/Eigen"
 #include "pybind11/pybind11.h"
 #include "pybind11/embed.h"
+
+#include "pypeline/types.hpp"
 
 namespace pypeline { namespace ffs {
     /**
@@ -37,6 +43,63 @@ namespace pypeline { namespace ffs {
         size_t out = fftpack.attr("next_fast_len")(target).cast<size_t>();
 
         return out;
+    }
+
+    /**
+     * Signal sample positions for :cpp:class:`pypeline::ffs::FFS`.
+     *
+     * Return the coordinates at which a signal must be sampled to use
+     * :cpp:class:`pypeline::ffs::FFS`.
+     *
+     * Parameters
+     * ----------
+     * T : TT const&
+     *     Function period.
+     * N_FS : size_t const&
+     *     Function bandwidth.
+     * T_c : TT const&
+     *     Period mid-point.
+     * N_s : size_t const&
+     *     Number of samples.
+     *
+     * Returns
+     * -------
+     * sample_point : pypeline::ArrayX_t<TT>
+     *     (N_s,) coordinates at which to sample a signal (in the right order).
+     */
+    template <typename TT>
+    pypeline::ArrayX_t<TT> ffs_sample(TT const& T,
+                                      size_t const& N_FS,
+                                      TT const& T_c,
+                                      size_t const& N_s) {
+        if (T <= static_cast<TT>(0.0)) {
+            std::string const msg = "Parameter[T] must be postive.";
+            throw std::runtime_error(msg);
+        }
+        if (N_FS < 3) {
+            std::string const msg = "Parameter[N_FS] must be \ge 3.";
+            throw std::runtime_error(msg);
+        }
+        if (N_s < N_FS) {
+            std::string const msg = "Parameter[N_s] must be \ge Parameter[N_FS] (signal bandwidth).";
+            throw std::runtime_error(msg);
+        }
+
+        pypeline::ArrayX_t<TT> sample_point(N_s);
+        pypeline::ArrayX_t<TT> idx(N_s);
+        if (N_s % 2 == 1) {  // Odd-valued
+            int const M = (N_s - 1) / 2;
+            idx << pypeline::ArrayX_t<TT>::LinSpaced(M + 1, 0, M),
+                   pypeline::ArrayX_t<TT>::LinSpaced(M, -M, -1);
+            sample_point = T_c + (T / N_s) * idx;
+        } else {
+            int const M = N_s / 2;
+            idx << pypeline::ArrayX_t<TT>::LinSpaced(M, 0, M - 1),
+                   pypeline::ArrayX_t<TT>::LinSpaced(M, -M, -1);
+            sample_point = T_c + (T / N_s) * (static_cast<TT>(0.5) + idx);
+        }
+
+        return sample_point;
     }
 }}
 #endif //PYPELINE_FFS_HPP
