@@ -46,6 +46,44 @@ void test_ffs_sample() {
     std::cout << std::endl;
 }
 
+void test_FFT() {
+    namespace _ffs = pypeline::ffs;
+
+    _ffs::FFT<float> FFT_f({5, 3}, 1, false, 1, _ffs::planning_effort::NONE);
+    std::cout << FFT_f.__repr__() << std::endl;
+
+    // Some dummy data for transforms
+    pypeline::ArrayXX_t<double> A = pypeline::ArrayXX_t<double>::Constant(FFT_f.shape()[0], FFT_f.shape()[1], 1);
+
+    // Fill FFT buffers
+    Eigen::Map<pypeline::ArrayXX_t<std::complex<float>>> data_in(FFT_f.data_in(), A.rows(), A.cols());
+    Eigen::Map<pypeline::ArrayXX_t<std::complex<float>>> data_out(FFT_f.data_out(), A.rows(), A.cols());
+    data_in = A.cast<float>();
+
+    std::cout << "Before fft()" << std::endl;
+    std::cout << "IN_ADDR = " << &data_in(0) << std::endl;
+    std::cout << data_in << std::endl;
+    std::cout << "OUT_ADDR = " << &data_out(0) << std::endl;
+    std::cout << data_out << std::endl;
+
+    FFT_f.fft();
+
+    std::cout << "After fft()" << std::endl;
+    std::cout << "IN_ADDR = " << &data_in(0) << std::endl;
+    std::cout << data_in << std::endl;
+    std::cout << "OUT_ADDR = " << &data_out(0) << std::endl;
+    std::cout << data_out << std::endl;
+
+    FFT_f.ifft();
+
+    std::cout << "After ifft()" << std::endl;
+    std::cout << "IN_ADDR = " << &data_in(0) << std::endl;
+    std::cout << data_in << std::endl;
+    std::cout << "OUT_ADDR = " << &data_out(0) << std::endl;
+    std::cout << data_out << std::endl;
+    std::cout << std::endl;
+}
+
 void test_deg2rad() {
     namespace _util = pypeline::util;
 
@@ -133,6 +171,7 @@ int main() {
     // pypeline/ffs.hpp
     test_next_fast_len();
     test_ffs_sample();
+    test_FFT();
 
     // pypeline/util.hpp
     test_deg2rad();
