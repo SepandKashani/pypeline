@@ -52,12 +52,36 @@ void test_deg2rad() {
     std::cout << std::endl;
 }
 
+void test_clip() {
+    namespace _util = pypeline::util;
+
+    double const x_min = -1;
+    double const x_max = 1;
+
+    double x = -2;
+    std::cout << "clip(x=" << x << ", x_min=" << x_min << ", x_max=" << x_max << ") = " << _util::clip<float>(x, x_min, x_max) << std::endl;
+    std::cout << "clip(x=" << x << ", x_min=" << x_min << ", x_max=" << x_max << ") = " << _util::clip<double>(x, x_min, x_max) << std::endl;
+
+    x = 2;
+    std::cout << "clip(x=" << x << ", x_min=" << x_min << ", x_max=" << x_max << ") = " << _util::clip<float>(x, x_min, x_max) << std::endl;
+    std::cout << "clip(x=" << x << ", x_min=" << x_min << ", x_max=" << x_max << ") = " << _util::clip<double>(x, x_min, x_max) << std::endl;
+
+    x = -0.5;
+    std::cout << "clip(x=" << x << ", x_min=" << x_min << ", x_max=" << x_max << ") = " << _util::clip<float>(x, x_min, x_max) << std::endl;
+    std::cout << "clip(x=" << x << ", x_min=" << x_min << ", x_max=" << x_max << ") = " << _util::clip<double>(x, x_min, x_max) << std::endl;
+    std::cout << std::endl;
+}
+
 int main() {
     pybind11::scoped_interpreter guard{};
 
+    // pypeline/ffs.hpp
     test_next_fast_len();
     test_ffs_sample();
+
+    // pypeline/util.hpp
     test_deg2rad();
+    test_clip();
 
     return 0;
 }
