@@ -12,6 +12,9 @@
 #define PYPELINE_UTIL_HPP
 
 #include <cmath>
+#include <sstream>
+#include <string>
+#include <vector>
 
 namespace pypeline { namespace util {
     /**
@@ -62,6 +65,30 @@ namespace pypeline { namespace util {
         }
 
         return y;
+    }
+
+    /**
+     * String representation of array.
+     *
+     * Parameters
+     * ----------
+     * x : std::vector<T> const&
+     *
+     * Returns
+     * -------
+     * msg : std::string
+     *     Textual representation of array contents.
+     */
+    template <typename T>
+    std::string print(std::vector<T> const& x) {
+        std::stringstream msg;
+        msg << "{";
+        for(size_t i = 0; i < x.size() - 1; ++i) {
+            msg << x[i] << ", ";
+        }
+        msg << x[x.size() - 1] << "}";
+
+        return msg.str();
     }
 }}
 #endif //PYPELINE_UTIL_HPP

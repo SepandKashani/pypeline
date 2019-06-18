@@ -6,6 +6,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <vector>
 
 #include "eigen3/Eigen/Eigen"
 
@@ -74,6 +75,20 @@ void test_clip() {
     std::cout << std::endl;
 }
 
+void test_print() {
+    namespace _util = pypeline::util;
+
+    std::vector<size_t> x {1, 2, 3, 4};
+    std::cout << _util::print(x) << std::endl;
+
+    std::vector<int> y {-1, 0, 1, 2};
+    std::cout << _util::print(y) << std::endl;
+
+    std::vector<float> z {-0.5, 0.0, 0.5, 15};
+    std::cout << _util::print(z) << std::endl;
+    std::cout << std::endl;
+}
+
 void test_z_rot2angle() {
     namespace _linalg = pypeline::linalg;
 
@@ -122,6 +137,7 @@ int main() {
     // pypeline/util.hpp
     test_deg2rad();
     test_clip();
+    test_print();
 
     // pypeline/linalg.hpp
     test_z_rot2angle();
