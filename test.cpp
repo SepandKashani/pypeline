@@ -5,10 +5,14 @@
 // ############################################################################
 
 #include <cmath>
+#include <complex>
 #include <iostream>
 #include <vector>
 
 #include "eigen3/Eigen/Eigen"
+#include "pybind11/pybind11.h"
+#include "pybind11/numpy.h"
+#include "pybind11/embed.h"
 
 #include "pypeline/ffs.hpp"
 #include "pypeline/func.hpp"
@@ -77,6 +81,55 @@ void test_FFT() {
     FFT_f.ifft();
 
     std::cout << "After ifft()" << std::endl;
+    std::cout << "IN_ADDR = " << &data_in(0) << std::endl;
+    std::cout << data_in << std::endl;
+    std::cout << "OUT_ADDR = " << &data_out(0) << std::endl;
+    std::cout << data_out << std::endl;
+    std::cout << std::endl;
+}
+
+// TODO: works with quick hack from Python for dirichlet kernel loading.
+void test_FFS() {
+    using TT = double;
+
+    TT const T = M_PI;
+    TT const T_c = M_E;
+    size_t const N_FS = 15;
+    size_t const N_samples = 18;
+
+    pybind11::module util = pybind11::module::import("pypeline.util");
+    pybind11::array_t<std::complex<TT>, pybind11::array::c_style | pybind11::array::forcecast> get_samples = util.attr("get_samples")();
+
+    Eigen::Map<pypeline::ArrayXX_t<std::complex<TT>>> diric_samples(reinterpret_cast<std::complex<TT>*>(get_samples.mutable_data()), 1, N_samples);
+    Eigen::Map<pypeline::ArrayXX_t<std::complex<TT>>> diric_FS(reinterpret_cast<std::complex<TT>*>(get_samples.mutable_data()) + N_samples, 1, N_samples);
+
+    namespace _ffs = pypeline::ffs;
+
+    _ffs::FFS<TT> FFS({1, N_samples}, 1, T, T_c, N_FS, false, 1, _ffs::planning_effort::NONE);
+    std::cout << FFS.__repr__() << std::endl;
+
+    // Fill FFS buffers
+    Eigen::Map<pypeline::ArrayXX_t<std::complex<TT>>> data_in(FFS.data_in(), 1, N_samples);
+    Eigen::Map<pypeline::ArrayXX_t<std::complex<TT>>> data_out(FFS.data_out(), 1, N_samples);
+    data_in = diric_samples;
+
+    std::cout << "Before ffs()" << std::endl;
+    std::cout << "IN_ADDR = " << &data_in(0) << std::endl;
+    std::cout << data_in << std::endl;
+    std::cout << "OUT_ADDR = " << &data_out(0) << std::endl;
+    std::cout << data_out << std::endl;
+
+    FFS.ffs();
+
+    std::cout << "After ffs()" << std::endl;
+    std::cout << "IN_ADDR = " << &data_in(0) << std::endl;
+    std::cout << data_in << std::endl;
+    std::cout << "OUT_ADDR = " << &data_out(0) << std::endl;
+    std::cout << data_out << std::endl;
+
+    FFS.iffs();
+
+    std::cout << "After iffs()" << std::endl;
     std::cout << "IN_ADDR = " << &data_in(0) << std::endl;
     std::cout << data_in << std::endl;
     std::cout << "OUT_ADDR = " << &data_out(0) << std::endl;
@@ -172,6 +225,7 @@ int main() {
     test_next_fast_len();
     test_ffs_sample();
     test_FFT();
+    // test_FFS();
 
     // pypeline/util.hpp
     test_deg2rad();
