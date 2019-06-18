@@ -10,6 +10,7 @@
 #include "eigen3/Eigen/Eigen"
 
 #include "pypeline/ffs.hpp"
+#include "pypeline/linalg.hpp"
 #include "pypeline/util.hpp"
 
 
@@ -72,6 +73,24 @@ void test_clip() {
     std::cout << std::endl;
 }
 
+void test_z_rot2angle() {
+    namespace _linalg = pypeline::linalg;
+
+    pypeline::ArrayXX_t<double> R(3, 3);
+    R << 1, 0, 0,
+         0, 1, 0,
+         0, 0, 1;
+    std::cout << "z_rot2angle(I_{3}) = " << _linalg::z_rot2angle(R.cast<float>()) << " [rad]" << std::endl;
+    std::cout << "z_rot2angle(I_{3}) = " << _linalg::z_rot2angle(R) << " [rad]" << std::endl;
+
+    R << 0, -1, 0,
+         1,  0, 0,
+         0,  0, 1;
+    std::cout << "z_rot2angle([e_{2}, - e_{1}, e_{3}]) = " << _linalg::z_rot2angle(R.cast<float>()) << " [rad]" << std::endl;
+    std::cout << "z_rot2angle([e_{2}, - e_{1}, e_{3}]) = " << _linalg::z_rot2angle(R) << " [rad]" << std::endl;
+    std::cout << std::endl;
+}
+
 int main() {
     pybind11::scoped_interpreter guard{};
 
@@ -82,6 +101,9 @@ int main() {
     // pypeline/util.hpp
     test_deg2rad();
     test_clip();
+
+    // pypeline/linalg.hpp
+    test_z_rot2angle();
 
     return 0;
 }
