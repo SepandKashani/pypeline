@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "pypeline/ffs.hpp"
+#include "pypeline/util.hpp"
 
 
 void test_next_fast_len() {
@@ -19,10 +20,23 @@ void test_next_fast_len() {
     std::cout << out << std::endl;
 }
 
+void test_deg2rad() {
+    namespace _util = pypeline::util;
+
+    float x_f = 5;
+    float y_f = _util::deg2rad(x_f);
+    std::cout << x_f << ", " << y_f << std::endl;
+
+    double x_d = 5;
+    double y_d = _util::deg2rad(x_d);
+    std::cout << x_d << ", " << y_d << std::endl;
+}
+
 int main() {
     pybind11::scoped_interpreter guard{};
 
     test_next_fast_len();
+    test_deg2rad();
 
     return 0;
 }
