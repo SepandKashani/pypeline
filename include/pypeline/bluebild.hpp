@@ -18,6 +18,7 @@
 #include <string>
 
 #include "eigen3/Eigen/Eigen"
+#include "eigen3/Eigen/Sparse"
 
 #include "pypeline/types.hpp"
 #include "pypeline/ffs.hpp"
@@ -70,6 +71,50 @@ namespace pypeline { namespace bluebild {
 
                 std::cout << "m_K_transform = " << m_K_transform << std::endl;
                 std::cout << "m_K_transform = " << m_E_transform << std::endl;
+            }
+
+            template <typename Derived_V, typename Derived_XYZ, typename Derived_W>
+            bool _have_matching_shapes(Eigen::ArrayBase<Derived_V> const& V,
+                                       Eigen::ArrayBase<Derived_XYZ> const& XYZ,
+                                       Eigen::SparseMatrixBase<Derived_W> const& W) {
+                if (V.rows() != W.cols()) {
+                    return false;
+                }
+                if (W.rows() != XYZ.rows()) {
+                    return false;
+                }
+                return true;
+            }
+
+            /**
+             * Angular shift w.r.t kernel antenna coordinates.
+             *
+             * Parameters
+             * ----------
+             * XYZ : Eigen::ArrayBase<Derived_XYZ> const&
+             *     (N_antenna, 3) Cartesian instrument geometry.
+             *     `XYZ` must be given in BFSF.
+             *
+             * Returns
+             * -------
+             * theta : TT
+             *     Angular shift (radians) such that ``dot(_XYZk, R(theta).T) == XYZ``.
+             */
+            template <typename Derived_XYZ>
+            TT _phase_shift(Eigen::ArrayBase<Derived_XYZ> const& XYZ) {
+                namespace _linalg = pypeline::linalg;
+
+                Eigen::Map<pypeline::ArrayXX_t<TT>> _XYZk(m_XYZk, m_Nantenna, 3);
+                pypeline::ArrayXX_t<TT> R_T = (_XYZk.matrix()
+                                               .bdcSvd(Eigen::ComputeThinU | Eigen::ComputeThinV)
+                                               .solve(XYZ.matrix()));
+
+                pypeline::ArrayXX_t<TT> R(3, 3);
+                R << R_T(0, 0), R_T(1, 0), 0,
+                     R_T(0, 1), R_T(1, 1), 0,
+                             0,         0, 1;
+                TT theta = _linalg::z_rot2angle(R);
+                return theta;
             }
 
         public:
@@ -268,6 +313,43 @@ namespace pypeline { namespace bluebild {
                     delete m_E_transform;
                     m_E_transform = nullptr;
                 }
+            }
+
+            /**
+             * Compute instantaneous field statistics.
+             *
+             * Parameters
+             * ----------
+             * V : Eigen::ArrayBase<Derived_V> const& V
+             *     (N_beam, N_eig) complex-valued eigenvectors.
+             * XYZ : Eigen::ArrayBase<Derived_XYZ> const& V
+             *     (N_antenna, 3) Cartesian instrument geometry.
+             *     `XYZ` must be given in ICRS.
+             * W : Eigen::SparseMatrixBase<Derived_W> const&
+             *     (N_antenna, N_beam) synthesis beamweights.
+             *
+             * Notes
+             * -----
+             * Results available in internal variable `m_stat`.
+             */
+            template <typename Derived_V, typename Derived_XYZ, typename Derived_W>
+            void operator()(Eigen::ArrayBase<Derived_V> const& V,
+                            Eigen::ArrayBase<Derived_XYZ> const& XYZ,
+                            Eigen::SparseMatrixBase<Derived_W> const& W) {
+                if(! _have_matching_shapes(V, XYZ, W)) {
+                    std::string msg = "Parameters[V, XYZ, W] are inconsistent.";
+                    throw std::runtime_error(msg);
+                }
+
+                Eigen::Map<pypeline::ArrayXX_t<TT>> _R(m_R, 3, 3);
+                pypeline::ArrayXX_t<TT> bfsf_XYZ = XYZ.matrix() * _R.matrix().transpose();
+                TT phase_shift = 0;
+                if (m_XYZk == nullptr) {
+                    phase_shift = 1e8;  // Just need something unreasonably large
+                } else {
+                    phase_shift = _phase_shift(bfsf_XYZ);
+                }
+                std::cout << "theta = " << phase_shift << std::endl;
             }
     };
 }}

@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "eigen3/Eigen/Eigen"
+#include "eigen3/Eigen/Sparse"
 #include "pybind11/pybind11.h"
 #include "pybind11/numpy.h"
 #include "pybind11/embed.h"
@@ -243,7 +244,7 @@ void test_bluebild() {
     using TT = double;
 
     TT const wl = 1.0;
-    pypeline::ArrayX_t<TT> _grid_colat = pypeline::ArrayX_t<TT>::LinSpaced(5, - M_PI, M_PI / 10);
+    pypeline::ArrayX_t<TT> _grid_colat = pypeline::ArrayX_t<TT>::LinSpaced(5, M_PI / 10, M_PI / 2);
     Eigen::Map<pypeline::ArrayXX_t<TT>> grid_colat(_grid_colat.data(), 5, 1);
     pypeline::ArrayX_t<TT> _grid_lon = pypeline::ArrayX_t<TT>::LinSpaced(15, 0, M_PI / 10);
     Eigen::Map<pypeline::ArrayXX_t<TT>> grid_lon(_grid_lon.data(), 1, 15);
@@ -256,8 +257,31 @@ void test_bluebild() {
     size_t const N_threads = 1;
     pypeline::ffs::planning_effort effort = pypeline::ffs::planning_effort::NONE;
 
-    _bluebild::FourierFieldSynthesizerBlock<TT>(wl, grid_colat, grid_lon, N_FS,
-                                                T, R, N_antenna, N_eig, N_threads, effort);
+    _bluebild::FourierFieldSynthesizerBlock<TT>bb(wl, grid_colat, grid_lon, N_FS,
+                                                  T, R, N_antenna, N_eig, N_threads, effort);
+
+
+    size_t const N_beam = 2;
+    pypeline::ArrayXX_t<TT> XYZ(N_antenna, 3);
+    for (size_t i = 0; i < N_antenna * 3; ++i) {
+        XYZ(i) = static_cast<TT>(i);
+    }
+    pypeline::ArrayXX_t<TT> V(N_beam, N_eig);
+    for (size_t i = 0; i < N_beam * N_eig; ++i) {
+        V(i) = static_cast<TT>(i);
+    }
+    pypeline::ArrayXX_t<TT> W_dense(N_antenna, N_beam);
+    W_dense << 1, 0,
+               1, 0,
+               0, 1,
+               0, 1;
+    Eigen::SparseMatrix<TT, Eigen::RowMajor> W = W_dense.matrix().sparseView();
+
+    // std::cout << XYZ << std::endl << std::endl;
+    // std::cout << V << std::endl << std::endl;
+    // std::cout << W << std::endl << std::endl;
+
+    bb(V, XYZ, W);
 }
 
 int main() {
