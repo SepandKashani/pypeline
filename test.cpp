@@ -18,6 +18,7 @@
 #include "pypeline/func.hpp"
 #include "pypeline/linalg.hpp"
 #include "pypeline/util.hpp"
+#include "pypeline/transform.hpp"
 
 
 void test_next_fast_len() {
@@ -218,6 +219,24 @@ void test_Tukey() {
     std::cout << std::endl;
 }
 
+void test_pol2cart() {
+    namespace _transform = pypeline::transform;
+    using T = double;
+
+
+    size_t const N_colat = 3;
+    pypeline::ArrayX_t<T> _colat = pypeline::ArrayX_t<T>::LinSpaced(N_colat, 0, 0.5 * M_PI);
+    Eigen::Map<pypeline::ArrayXX_t<T>> colat(_colat.data(), N_colat, 1);
+
+    size_t const N_lon = 4;
+    pypeline::ArrayX_t<T> _lon = pypeline::ArrayX_t<T>::LinSpaced(N_lon, - 0.5 * M_PI, 0.5 * M_PI);
+    Eigen::Map<pypeline::ArrayXX_t<T>> lon(_lon.data(), 1, N_lon);
+
+    pypeline::ArrayXX_t<T> XYZ = _transform::pol2cart(colat, lon);
+    std::cout << XYZ << std::endl;
+    std::cout << std::endl;
+}
+
 int main() {
     pybind11::scoped_interpreter guard{};
 
@@ -237,6 +256,9 @@ int main() {
 
     // pypeline/func.hpp
     test_Tukey();
+
+    // pypeline/transform.hpp
+    test_pol2cart();
 
     return 0;
 }
