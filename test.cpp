@@ -19,6 +19,7 @@
 #include "pypeline/linalg.hpp"
 #include "pypeline/util.hpp"
 #include "pypeline/transform.hpp"
+#include "pypeline/bluebild.hpp"
 
 
 void test_next_fast_len() {
@@ -237,28 +238,53 @@ void test_pol2cart() {
     std::cout << std::endl;
 }
 
+void test_bluebild() {
+    namespace _bluebild = pypeline::bluebild;
+    using TT = double;
+
+    TT const wl = 1.0;
+    pypeline::ArrayX_t<TT> _grid_colat = pypeline::ArrayX_t<TT>::LinSpaced(5, - M_PI, M_PI / 10);
+    Eigen::Map<pypeline::ArrayXX_t<TT>> grid_colat(_grid_colat.data(), 5, 1);
+    pypeline::ArrayX_t<TT> _grid_lon = pypeline::ArrayX_t<TT>::LinSpaced(15, 0, M_PI / 10);
+    Eigen::Map<pypeline::ArrayXX_t<TT>> grid_lon(_grid_lon.data(), 1, 15);
+    TT const N_FS = 13;
+    TT const T = 0.2 * M_PI;
+    pypeline::ArrayXX_t<TT> R(3, 3);
+    R << 1, 0, 0, 0, 1, 0, 0, 0, 1;
+    size_t const N_antenna = 4;
+    size_t const N_eig = 2;
+    size_t const N_threads = 1;
+    pypeline::ffs::planning_effort effort = pypeline::ffs::planning_effort::NONE;
+
+    _bluebild::FourierFieldSynthesizerBlock<TT>(wl, grid_colat, grid_lon, N_FS,
+                                                T, R, N_antenna, N_eig, N_threads, effort);
+}
+
 int main() {
     pybind11::scoped_interpreter guard{};
 
-    // pypeline/ffs.hpp
-    test_next_fast_len();
-    test_ffs_sample();
-    test_FFT();
-    // test_FFS();
+    // // pypeline/ffs.hpp
+    // test_next_fast_len();
+    // test_ffs_sample();
+    // test_FFT();
+    // // test_FFS();
 
-    // pypeline/util.hpp
-    test_deg2rad();
-    test_clip();
-    test_print();
+    // // pypeline/util.hpp
+    // test_deg2rad();
+    // test_clip();
+    // test_print();
 
-    // pypeline/linalg.hpp
-    test_z_rot2angle();
+    // // pypeline/linalg.hpp
+    // test_z_rot2angle();
 
-    // pypeline/func.hpp
-    test_Tukey();
+    // // pypeline/func.hpp
+    // test_Tukey();
 
-    // pypeline/transform.hpp
-    test_pol2cart();
+    // // pypeline/transform.hpp
+    // test_pol2cart();
+
+    // pypeline/bluebild.hpp
+    test_bluebild();
 
     return 0;
 }
