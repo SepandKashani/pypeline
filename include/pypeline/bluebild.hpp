@@ -20,8 +20,9 @@
 #include "eigen3/Eigen/Eigen"
 #include "eigen3/Eigen/Sparse"
 
-#include "pypeline/types.hpp"
 #include "pypeline/ffs.hpp"
+#include "pypeline/types.hpp"
+#include "pypeline/util.hpp"
 
 namespace pypeline { namespace bluebild {
     template <typename TT>
@@ -115,6 +116,51 @@ namespace pypeline { namespace bluebild {
                              0,         0, 1;
                 TT theta = _linalg::z_rot2angle(R);
                 return theta;
+            }
+
+            bool _regen_required(TT const& shift) {
+                namespace _util = pypeline::util;
+                TT const lhs = _util::deg2rad<TT>(-0.1);  // Slightly below 0 due to numerical rounding
+
+                if ((lhs <= shift) && (shift <= m_mps)) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+
+            template <typename Derived>
+            void _regen_kernel(Eigen::ArrayBase<Derived> const& XYZ) {
+                namespace _ffs = pypeline::ffs;
+                namespace _transform = pypeline::transform;
+                namespace _func = pypeline::func;
+
+                pypeline::ArrayX_t<TT> lon_smpl = _ffs::ffs_sample<TT>(m_T, m_NFS, m_Tc, m_2N1Q);
+                Eigen::Map<pypeline::ArrayXX_t<TT>> _grid_colat(m_grid_colat, m_Nheight, 1);
+                pypeline::ArrayXX_t<TT> pix_smpl = _transform::pol2cart(_grid_colat, lon_smpl);
+
+                pypeline::ArrayX_t<TT> XYZ_mean = XYZ.colwise().mean();
+                pypeline::ArrayXX_t<TT> XYZ_c = (XYZ.rowwise() - XYZ_mean) * (2 * M_PI / m_wl);
+
+                Eigen::Map<pypeline::ArrayXX_t<std::complex<TT>>> pre_FSk(m_K_transform->data_in(),
+                                                                          m_Nantenna,
+                                                                          m_Nheight * m_2N1Q);
+                pre_FSk.real() = (XYZ_c.matrix() * pix_smpl.matrix()).array().cos();
+                pre_FSk.imag() = (XYZ_c.matrix() * pix_smpl.matrix()).array().sin();
+
+                Eigen::Map<pypeline::ArrayXX_t<std::complex<TT>>> window_FSk(m_K_transform->data_in(),
+                                                                             m_Nantenna * m_Nheight,
+                                                                             m_2N1Q);
+                pypeline::ArrayXX_t<TT> window = _func::Tukey<TT>(m_T, m_Tc, m_alpha_window)(lon_smpl);
+                // TODO: for some reason this does not work?
+                // window_FSk.rowwise() *= window;
+
+                m_K_transform->ffs();
+                if (m_XYZk == nullptr) {
+                    m_XYZk = new TT[3 * m_Nantenna];
+                    Eigen::Map<pypeline::ArrayXX_t<TT>> _XYZk(m_XYZk, m_Nantenna, 3);
+                    _XYZk = XYZ;
+                }
             }
 
         public:
@@ -350,6 +396,11 @@ namespace pypeline { namespace bluebild {
                     phase_shift = _phase_shift(bfsf_XYZ);
                 }
                 std::cout << "theta = " << phase_shift << std::endl;
+
+                if (_regen_required(phase_shift)) {
+                    _regen_kernel(bfsf_XYZ);
+                    phase_shift = 0.0;
+                }
             }
     };
 }}

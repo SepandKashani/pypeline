@@ -89,7 +89,7 @@ def build_lib(args, project_root_dir):
            "{project_root_dir}";
         make install;
         cd "{project_root_dir}";
-        python3 "{project_root_dir}/setup.py" develop;
+        # python3 "{project_root_dir}/setup.py" develop;
         """
     return cmds
 

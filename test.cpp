@@ -282,6 +282,7 @@ void test_bluebild() {
     // std::cout << W << std::endl << std::endl;
 
     bb(V, XYZ, W);
+    bb(V, XYZ, W);
 }
 
 int main() {
