@@ -55,8 +55,11 @@ has_pypeline_env() {
 }
 
 load_pypeline_env() {
-    source activate pypeline
-
+    if [ $(conda --version | grep -c "conda.4.") -eq 1 ]; then
+        conda activate pypeline
+    else
+        source activate pypeline
+    fi
     # CasaCore: add <miniconda_root>/lib/ to LD_LIBRARY_PATH for libtinfow.so
     local miniconda_root="$(dirname "$(dirname "$(which conda)")")"
     export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${miniconda_root}/lib"
