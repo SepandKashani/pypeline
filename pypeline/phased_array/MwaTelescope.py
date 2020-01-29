@@ -1,9 +1,8 @@
-# ########################################################
-# MwaTelescope.py                                        #
-# ______________________                                 #
-# Author : Dewan Arun Singh (dewanarunsingh@outlook.com) #
-# ######################################################## 
-
+# #############################################################################
+# MwaTelescope.py
+# ==================
+# Author : Sepand KASHANI [kashani.sepand@gmail.com]
+# #############################################################################
 import pathlib
 
 import astropy.coordinates as coord
