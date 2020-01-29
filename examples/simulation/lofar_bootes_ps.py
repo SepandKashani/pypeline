@@ -25,7 +25,7 @@ import pypeline.phased_array.bluebild.imager.fourier_domain as bb_fd
 import pypeline.phased_array.bluebild.parameter_estimator as bb_pe
 import pypeline.phased_array.data_gen.source as source
 import pypeline.phased_array.data_gen.statistics as statistics
-import pypeline.phased_array.instrument as instrument
+import pypeline.phased_array.LofarTelescope as instrument
 
 
 # Observation
