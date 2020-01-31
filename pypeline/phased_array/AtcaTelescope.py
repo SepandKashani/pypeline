@@ -21,8 +21,7 @@ class AtcaTelescope (EarthBoundInstrumentGeometryBlock):
     ATCA consists of a single station, with 6 antennas out of which 5 are movable and can be positioned at 44 different locations
     along a 3KM East-West track and a 214m North-South track.
     """
-    #Constants
-    STATION_LOCATION = [-4750915.837, 2792906.182, -3200483.747]
+    
     def __init__(self, array_config):
         """
         Parameters
