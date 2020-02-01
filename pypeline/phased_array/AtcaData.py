@@ -6,7 +6,7 @@
 
 import numpy as np
 import pandas as pd
-import imot_tools.util.argcheck as chk
+import ImoT_tools.imot_tools.util.argcheck as chk
 import casacore.tables as ct
 import pypeline.phased_array.instrument as instrument
 
@@ -16,7 +16,7 @@ class AtcaData(MeasurementSet):
     """ 
     Australia Telescope Compact Array (ATCA) data handler class.
     """
-    @chk.check(dict(fileName = chk.isinstance(str)))
+    @chk.check(dict(fileName = chk.is_instance(str)))
 
     def __init__(self, fileName):
         """
@@ -29,7 +29,7 @@ class AtcaData(MeasurementSet):
         A number corresponding to one of the 28 array configurations at ATCA.
         """
         super().__init__(fileName)
-        self._arrayConfig = arrayConfig
+        
         
     @property
     def instrument(self):
@@ -71,6 +71,7 @@ class AtcaData(MeasurementSet):
         return self._instrument
     
     
+
 
 
 
