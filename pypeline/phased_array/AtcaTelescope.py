@@ -1,7 +1,7 @@
-    # #################################################################
-   # AtcaTelescope.py                                               #
-  # ================                                              #
- # Author : Dewan Arun Singh (dewanarunsingh@outlook.com)       #
+     # #################################################################
+    # AtcaTelescope.py                                               #
+   # ================                                              #
+  # Author : Dewan Arun Singh (dewanarunsingh@outlook.com)      #
 # #############################################################
 
 
@@ -20,16 +20,18 @@ class AtcaTelescope (EarthBoundInstrumentGeometryBlock):
 
     ATCA consists of a single station, with 6 antennas out of which 5 are movable and can be positioned at 44 different locations
     along a 3KM East-West track and a 214m North-South track.
+    
+    This class is to be used only for the simulated data. 
     """
     
     def __init__(self, array_config):
         """
         Parameters
-        _______________
+        -------------
         array_config : int
         One of the possible 28 configurations of the antennas at ATCA. Each integer corresponds to an alphanumeric configuration
         as provided for ATCA.
-        ______________________________________________________________
+        -------------------
         """
         rel_path = Path("data", "phased_array", "instrument", "ATCA.csv")
         abs_path = pkg.resource_filename("pypeline", str(rel_path))
