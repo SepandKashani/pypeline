@@ -26,7 +26,7 @@ import pypeline.phased_array.bluebild.imager.spatial_domain as bb_sd
 import pypeline.phased_array.bluebild.parameter_estimator as bb_pe
 import pypeline.phased_array.data_gen.source as source
 import pypeline.phased_array.data_gen.statistics as statistics
-import pypeline.phased_array.instrument as instrument
+import pypeline.phased_array.LofarTelescope as instrument
 
 
 # Observation
@@ -51,8 +51,9 @@ time = obs_start + (T_integration * u.s) * np.arange(3595)
 # Imaging
 N_level = 4
 N_bits = 32
+N=dev.nyquist_rate(wl)
 _, _, px_colat, px_lon = grid.equal_angle(
-    N=dev.nyquist_rate(wl), direction=field_center.cartesian.xyz.value, FoV=FoV
+    N, direction=field_center.cartesian.xyz.value, FoV=FoV
 )
 px_grid = transform.pol2cart(1, px_colat, px_lon)
 
