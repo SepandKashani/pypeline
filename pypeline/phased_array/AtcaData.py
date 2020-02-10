@@ -61,7 +61,7 @@ class AtcaData(MeasurementSet):
             antennae = np.reshape(antenna_position,(6,3))
             
             #Create a multi-level index for the new dataframe with STATION_ID always as 0
-            cfg_index = pd.MultiIndex.from_product([{0},antenna_id],names=['STATION_ID','ANTENNA_ID']
+            cfg_index = pd.MultiIndex.from_product([antenna_id,{0}],names=['STATION_ID','ANTENNA_ID']
             )
             df = pd.DataFrame(data=antennae, columns=['X','Y','Z'], index=cfg_index).loc[~antenna_flag]
 
@@ -92,6 +92,3 @@ class AtcaData(MeasurementSet):
             self._beamformer = beamforming.MatchedBeamformerBlock(beam_config)
 
         return self._beamformer
-
-
-
