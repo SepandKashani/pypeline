@@ -54,3 +54,7 @@ doc/build/
 
 ########## .ipynb checkpoints and files #############################
 *.ipynb
+.vscode/launch.json
+
+##############    Log Files    ##################33
+*.log
