@@ -15,7 +15,7 @@ from pypeline.phased_array.measurement_set import MeasurementSet
 
 
 class AtcaData(MeasurementSet):
-    """ 
+    """
     Australia Telescope Compact Array (ATCA) data handler class.
     """
 
@@ -53,18 +53,16 @@ class AtcaData(MeasurementSet):
             table = ct.taql(query)
 
             # Getting the necessary data out from the ms table
-            antenna_id = np.arange(len(table.getcol("NAME")))
+            N_antenna = len(table.getcol("NAME"))
+            antenna_id = np.arange(N_antenna)
             antenna_position = table.getcol("POSITION")
             antenna_flag = table.getcol("FLAG_ROW")
-
-            # Creating a dataframe that holds the all the relevant data and filtering out flagged antennas.
-            antennae = np.reshape(antenna_position, (6, 3))
 
             # Create a multi-level index for the new dataframe with STATION_ID always as 0
             cfg_index = pd.MultiIndex.from_product(
                 [antenna_id, {0}], names=["STATION_ID", "ANTENNA_ID"]
             )
-            df = pd.DataFrame(data=antennae, columns=["X", "Y", "Z"], index=cfg_index).loc[
+            df = pd.DataFrame(data=antenna_position, columns=["X", "Y", "Z"], index=cfg_index).loc[
                 ~antenna_flag
             ]
 
