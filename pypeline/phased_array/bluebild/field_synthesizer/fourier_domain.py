@@ -244,7 +244,6 @@ class FourierFieldSynthesizerBlock(synth.FieldSynthesizerBlock):
         if not fsd._have_matching_shapes(V, XYZ, W):
             raise ValueError("Parameters[V, XYZ, W] are inconsistent.")
         V = V.astype(self._cp, copy=False)
-        XYZ = XYZ.astype(self._fp, copy=False)
         W = W.astype(self._cp, copy=False)
 
         bfsf_XYZ = XYZ @ self._R.T

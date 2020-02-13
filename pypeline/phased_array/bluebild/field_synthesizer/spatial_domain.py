@@ -188,13 +188,12 @@ class SpatialFieldSynthesizerBlock(synth.FieldSynthesizerBlock):
         if not _have_matching_shapes(V, XYZ, W):
             raise ValueError("Parameters[V, XYZ, W] are inconsistent.")
         V = V.astype(self._cp, copy=False)
-        XYZ = XYZ.astype(self._fp, copy=False)
         W = W.astype(self._cp, copy=False)
 
         N_antenna, N_beam = W.shape
         N_height, N_width = self._grid.shape[1:]
 
-        XYZ = XYZ - XYZ.mean(axis=0)
+        XYZ = (XYZ - XYZ.mean(axis=0)).astype(self._fp)
         P = np.zeros((N_antenna, N_height, N_width), dtype=self._cp)
         ne.evaluate(
             "exp(A * B)",
