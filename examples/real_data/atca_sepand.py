@@ -4,6 +4,7 @@
 # Author : Dewan Arun Singh (19884240@student.westernsydney.edu.au)
 # ###################################################################
 
+import astropy.coordinates as coord
 import astropy.units as u
 import matplotlib.pyplot as plt
 import numpy as np
@@ -30,6 +31,9 @@ gram = bb_gr.GramBlock()
 
 # Observation
 FoV = np.deg2rad(0.15)  # Sepand: TBD from Miriad image. Conservative lower-bound.
+# luc = coord.SkyCoord('20h55m37.085s -37d33m41.75s')
+# rbc = coord.SkyCoord('20h54m11.789s -37d33m57.90s')
+# FoV = luc.separation(rbc).to_value(u.rad)
 channel_id = 257
 frequency = ms.channels["FREQUENCY"][channel_id]
 wl = constants.speed_of_light / frequency.to_value(u.Hz)
