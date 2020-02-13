@@ -12,6 +12,7 @@ import pypeline.phased_array.beamforming as beamforming
 import pypeline.phased_array.instrument as instrument
 from pypeline.phased_array.measurement_set import MeasurementSet
 
+
 class LofarMeasurementSet(MeasurementSet):
     """
     LOw-Frequency ARray (LOFAR) Measurement Set reader.

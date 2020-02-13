@@ -24,7 +24,6 @@ from pypeline.phased_array.instrument import EarthBoundInstrumentGeometryBlock
 from pypeline.phased_array.instrument import _as_InstrumentGeometry
 
 
-
 class MwaBlock(EarthBoundInstrumentGeometryBlock):
     """
     `Murchison Widefield Array (MWA) <http://www.mwatelescope.org/>`_ located in Australia.

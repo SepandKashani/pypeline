@@ -51,10 +51,8 @@ time = obs_start + (T_integration * u.s) * np.arange(3595)
 # Imaging
 N_level = 4
 N_bits = 32
-N=dev.nyquist_rate(wl)
-_, _, px_colat, px_lon = grid.equal_angle(
-    N, direction=field_center.cartesian.xyz.value, FoV=FoV
-)
+N = dev.nyquist_rate(wl)
+_, _, px_colat, px_lon = grid.equal_angle(N, direction=field_center.cartesian.xyz.value, FoV=FoV)
 px_grid = transform.pol2cart(1, px_colat, px_lon)
 
 ### Intensity Field ===========================================================

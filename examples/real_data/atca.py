@@ -1,7 +1,7 @@
-    # ###############################################################
-   # Atca.py                                                       
-  # ================                                              
- # Author : Dewan Arun Singh (19884240@student.westernsydney.edu.au)
+# ###############################################################
+# Atca.py
+# ================
+# Author : Dewan Arun Singh (19884240@student.westernsydney.edu.au)
 # ###################################################################
 
 import astropy.units as u
@@ -33,23 +33,21 @@ FoV = np.deg2rad(0.5)
 channel_id = 257
 frequency = ms.channels["FREQUENCY"][channel_id]
 wl = constants.speed_of_light / frequency.to_value(u.Hz)
-#sky_model = source.from_tgss_catalog(ms.field_center, FoV, N_src=1)
+# sky_model = source.from_tgss_catalog(ms.field_center, FoV, N_src=1)
 
 
 # Imaging
 N_level = 4
 N_bits = 32
-N=ms.instrument.nyquist_rate(wl)
-px_grid = grid.uniform(direction=ms.field_center.cartesian.xyz.value, FoV=FoV,size=[1920,1080])
- 
+N = ms.instrument.nyquist_rate(wl)
+px_grid = grid.uniform(direction=ms.field_center.cartesian.xyz.value, FoV=FoV, size=[1920, 1080])
+
 
 ### Intensity Field ===========================================================
 # Parameter Estimation
 I_est = bb_pe.IntensityFieldParameterEstimator(N_level, sigma=1)
 for t, f, S in ProgressBar(
-    ms.visibilities(
-        channel_id=[channel_id], time_id=slice(None, None, 100), column="DATA"
-    )
+    ms.visibilities(channel_id=[channel_id], time_id=slice(None, None, 100), column="DATA")
 ):
     wl = constants.speed_of_light / f.to_value(u.Hz)
     XYZ = ms.instrument(t)
@@ -100,8 +98,8 @@ for t, f, S in ProgressBar(
     S, W = measurement_set.filter_data(S, W)
 
     D, V = S_dp(G)
-    _ = S_mfs(D, V.astype(complex) , XYZ.data, W.data, cluster_idx=np.zeros(N_eig, dtype=int))
-    
+    _ = S_mfs(D, V.astype(complex), XYZ.data, W.data, cluster_idx=np.zeros(N_eig, dtype=int))
+
 _, S = S_mfs.as_image()
 
 #############################   Periodic Synthesis  ###########################################
@@ -183,7 +181,7 @@ fig, ax = plt.subplots(ncols=2)
 # ax[0].set_title("Bluebild Standardized Image")
 
 I_lsq_eq = s2image.Image(I_lsq.data / S.data, I_lsq.grid)
-#I_lsq_eq.draw(catalog=sky_model.xyz.T, ax=ax[1])
+# I_lsq_eq.draw(catalog=sky_model.xyz.T, ax=ax[1])
 I_lsq_eq.draw(ax=ax[0])
 ax[0].set_title("Bluebild Least-Squares Image")
 fig.show()

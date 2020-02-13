@@ -24,6 +24,7 @@ import pypeline.util.array as array
 from pypeline.phased_array.instrument import EarthBoundInstrumentGeometryBlock
 from pypeline.phased_array.instrument import _as_InstrumentGeometry
 
+
 class LofarBlock(EarthBoundInstrumentGeometryBlock):
     """
     `LOw-Frequency ARray (LOFAR) <http://www.lofar.org/>`_ located in Europe.
