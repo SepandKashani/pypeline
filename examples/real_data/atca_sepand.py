@@ -25,7 +25,7 @@ import pypeline.phased_array.data_gen.source as source
 import pypeline.phased_array.measurement_set as measurement_set
 
 # Instrument
-ms_file = "/home/sep/Documents/Data/Radio-Astronomy/ATCA/2051-377-2868.ms"
+ms_file = "/home/das/ATNF_data/ms_data/2051-377-2868.ms/"
 ms = data.AtcaData(ms_file)
 gram = bb_gr.GramBlock()
 

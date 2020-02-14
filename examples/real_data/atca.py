@@ -4,12 +4,13 @@
 # Author : Dewan Arun Singh (19884240@student.westernsydney.edu.au)
 # ###################################################################
 
+from tqdm import tqdm as ProgressBar
+
 import astropy.units as u
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.constants as constants
-from tqdm import tqdm as ProgressBar
-
+import astropy.coordinates as coord
 import imot_tools.io.s2image as s2image
 import imot_tools.math.sphere.grid as grid
 import imot_tools.math.sphere.transform as transform
@@ -29,7 +30,9 @@ ms = data.AtcaData(ms_file)
 gram = bb_gr.GramBlock()
 
 # Observation
-FoV = np.deg2rad(0.5)
+luc = coord.SkyCoord('20h55m37.004s -37d25m12.14s')
+rbc = coord.SkyCoord('20h54m11.712s -37d42m1.68s')
+FoV = luc.separation(rbc).to_value(u.rad)
 channel_id = 257
 frequency = ms.channels["FREQUENCY"][channel_id]
 wl = constants.speed_of_light / frequency.to_value(u.Hz)
@@ -40,7 +43,7 @@ wl = constants.speed_of_light / frequency.to_value(u.Hz)
 N_level = 4
 N_bits = 32
 N = ms.instrument.nyquist_rate(wl)
-px_grid = grid.uniform(direction=ms.field_center.cartesian.xyz.value, FoV=FoV, size=[1920, 1080])
+px_grid = grid.uniform(direction=ms.field_center.cartesian.xyz.value, FoV=FoV, size=[800, 600])
 
 
 ### Intensity Field ===========================================================
@@ -176,12 +179,13 @@ _, S = S_mfs.as_image()
 
 # Plot Results ================================================================
 fig, ax = plt.subplots(ncols=2)
-# I_std_eq = s2image.Image(I_std.data / S.data, I_std.grid)
+I_std_eq = s2image.Image(I_std.data / S.data, I_std.grid)
 # #I_std_eq.draw(catalog=sky_model.xyz.T, ax=ax[0])
-# ax[0].set_title("Bluebild Standardized Image")
+I_std_eq.draw(ax=ax[0],data_kwargs=dict(cmap='viridis'),show_gridlines=False)
+ax[0].set_title("Bluebild Standardized Image")
 
 I_lsq_eq = s2image.Image(I_lsq.data / S.data, I_lsq.grid)
 # I_lsq_eq.draw(catalog=sky_model.xyz.T, ax=ax[1])
-I_lsq_eq.draw(ax=ax[0])
-ax[0].set_title("Bluebild Least-Squares Image")
+I_lsq_eq.draw(ax=ax[1],data_kwargs=dict(cmap='viridis'),show_gridlines=False)
+ax[1].set_title("Bluebild Least-Squares Image")
 fig.show()

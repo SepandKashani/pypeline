@@ -51,12 +51,11 @@ class AtcaTelescope(EarthBoundInstrumentGeometryBlock):
             # station telescope.
             itrs_geom = pd.read_csv(abs_path).set_index(["VARIANT", "ANTENNA_ID"])
             # XYZ = _as_InstrumentGeometry(itrs_geom)
-            geom_values = itrs_geom.iloc[
-                itrs_geom.index.get_level_values("VARIANT") == variant
-            ].values
+            geom = itrs_geom.iloc[
+                itrs_geom.index.get_level_values("VARIANT") == variant]
             ant_idx = pd.MultiIndex.from_product(
-                [{0}, np.arange(1, 7, 1)], names=["STATION_ID", "ANTENNA_ID"]
+                [geom.index.get_level_values('ANTENNA_ID'),{0}], names=["STATION_ID", "ANTENNA_ID"]
             )
-            XYZ = _as_InstrumentGeometry(pd.DataFrame(data=geom_values, index=ant_idx))
+            XYZ = _as_InstrumentGeometry(pd.DataFrame(data=geom.values, index=ant_idx))
 
-        super().__init__(XYZ, N_station=1)
+        super().__init__(XYZ, N_station=len(geom))
