@@ -43,7 +43,7 @@ wl = constants.speed_of_light / frequency.to_value(u.Hz)
 N_level = 4
 N_bits = 32
 N = ms.instrument.nyquist_rate(wl)
-px_grid = grid.uniform(direction=ms.field_center.cartesian.xyz.value, FoV=FoV, size=[800, 600])
+px_grid = grid.uniform(direction=ms.field_center.cartesian.xyz.value, FoV=FoV, size=[800, 800])
 
 
 ### Intensity Field ===========================================================
