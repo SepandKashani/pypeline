@@ -1,5 +1,5 @@
 """
-Simulated ATCA imaging with Bluebild (PeriodicSynthesis).
+Simulated ATCA imaging with Bluebild (Standard Synthesis).
 """
 
 from tqdm import tqdm as ProgressBar
@@ -8,6 +8,7 @@ import astropy.time as atime
 import astropy.units as u
 import imot_tools.io.s2image as s2image
 import imot_tools.math.sphere.grid as grid
+import imot_tools.math.sphere.transform as transform
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.constants as constants
@@ -19,54 +20,59 @@ import pypeline.phased_array.bluebild.imager.spatial_domain as bb_sd
 import pypeline.phased_array.bluebild.parameter_estimator as bb_pe
 import pypeline.phased_array.data_gen.source as source
 import pypeline.phased_array.data_gen.statistics as statistics
+
+
 import pypeline.phased_array.AtcaTelescope as instrument
+import pypeline.phased_array.AtcaData as data
 
 
 # Observation
-obs_start = atime.Time(56879.54171302732, scale="utc", format="mjd")
-field_center = coord.SkyCoord(218 * u.deg, 34.5 * u.deg)
+obs_start = atime.Time(55679.80133020458, scale="utc", format="mjd")
 FoV, frequency = np.deg2rad(0.39), 2867e+09
-wl = constants.speed_of_light / frequency
+wl = 0.10456660551098709
 
 # Instrument
-N_station = 6
-dev = instrument.AtcaTelescope("6A")
-mb_cfg = [(_, _, field_center) for _ in range(N_station)]
-mb = beamforming.MatchedBeamformerBlock(mb_cfg)
+#N_station = 6
+ms_file = "/home/das/ATNF_data/ms_data/2051-377-2868.ms/"
+ms = data.AtcaData(ms_file)
+# mb_cfg = [(_, _, field_center) for _ in range(N_station)]
+#mb = beamforming.MatchedBeamformerBlock(mb_cfg)
 gram = bb_gr.GramBlock()
 
 # Data generation
-T_integration = 8
-sky_model = source.from_tgss_catalog(field_center, FoV, N_src=2)
+T_integration = 10
+sky_model = source.SkyEmission([(coord.SkyCoord('20h54m54.171s -37d33m51.11s', frame='icrs'),0.15)])
 vis = statistics.VisibilityGeneratorBlock(sky_model, T_integration, fs=196000, SNR=np.inf)
-time = obs_start + (T_integration * u.s) * np.arange(3595)
+#time = obs_start + (T_integration * u.s) * np.arange(815)
+time = ms.time['TIME']
+#import pdb; pdb.set_trace()
 obs_end = time[-1]
 
 # Imaging
 N_level = 4
 N_bits = 32
 
-px_grid = grid.uniform(direction=field_center.cartesian.xyz.value,FoV=FoV,size=[256,256])
+px_grid = grid.uniform(direction=ms.field_center.cartesian.xyz.value,FoV=FoV,size=[600,600])
 
 
 ### Intensity Field ===========================================================
 # Parameter Estimation
-I_est = bb_pe.IntensityFieldParameterEstimator(N_level, sigma=0.95)
+I_est = bb_pe.IntensityFieldParameterEstimator(N_level, sigma=1)
 for t in ProgressBar(time[::200]):
-    XYZ = dev(t)
-    W = mb(XYZ, wl)
+    XYZ = ms.instrument(t)
+    W = ms.beamformer(XYZ, wl)
     S = vis(XYZ, W, wl)
     G = gram(XYZ, W, wl)
-
+    #import pdb; pdb.set_trace()
     I_est.collect(S, G)
 N_eig, c_centroid = I_est.infer_parameters()
 
 # Imaging
 I_dp = bb_dp.IntensityFieldDataProcessorBlock(N_eig, c_centroid)
-I_mfs =bb_sd.Spatial_IMFS_Block(wl=wl,pix_grid=px_grid,N_level=N_level,precision=N_bits)
+I_mfs =bb_sd.Spatial_IMFS_Block(wl,px_grid,N_level,N_bits)
 for t in ProgressBar(time[::1]):
-    XYZ = dev(t)
-    W = mb(XYZ, wl)
+    XYZ = ms.instrument(t)
+    W = ms.beamformer(XYZ, wl)
     S = vis(XYZ, W, wl)
     G = gram(XYZ, W, wl)
 
@@ -76,10 +82,10 @@ I_std, I_lsq = I_mfs.as_image()
 
 ### Sensitivity Field =========================================================
 # Parameter Estimation
-S_est = bb_pe.SensitivityFieldParameterEstimator(sigma=0.95)
+S_est = bb_pe.SensitivityFieldParameterEstimator(sigma=1)
 for t in ProgressBar(time[::200]):
-    XYZ = dev(t)
-    W = mb(XYZ, wl)
+    XYZ = ms.instrument(t)
+    W = ms.beamformer(XYZ, wl)
     G = gram(XYZ, W, wl)
 
     S_est.collect(G)
@@ -87,10 +93,10 @@ N_eig = S_est.infer_parameters()
 
 # Imaging
 S_dp = bb_dp.SensitivityFieldDataProcessorBlock(N_eig)
-S_mfs = bb_sd.Spatial_IMFS_Block(wl=wl,pix_grid=px_grid,N_level=1,precision=N_bits)
+S_mfs = bb_sd.Spatial_IMFS_Block(wl,px_grid,1,N_bits)
 for t in ProgressBar(time[::50]):
-    XYZ = dev(t)
-    W = mb(XYZ, wl)
+    XYZ = ms.instrument(t)
+    W = ms.beamformer(XYZ, wl)
     G = gram(XYZ, W, wl)
 
     D, V = S_dp(G)
