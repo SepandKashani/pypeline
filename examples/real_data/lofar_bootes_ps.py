@@ -21,7 +21,7 @@ import pypeline.phased_array.bluebild.gram as bb_gr
 import pypeline.phased_array.bluebild.imager.fourier_domain as bb_fd
 import pypeline.phased_array.bluebild.parameter_estimator as bb_pe
 import pypeline.phased_array.data_gen.source as source
-import pypeline.phased_array.LofarData as measurement_set
+import pypeline.phased_array.Lofar.LofarData as measurement_set
 
 
 # Instrument

@@ -26,7 +26,7 @@ import pypeline.phased_array.bluebild.imager.spatial_domain as bb_sd
 import pypeline.phased_array.bluebild.parameter_estimator as bb_pe
 import pypeline.phased_array.data_gen.source as source
 import pypeline.phased_array.data_gen.statistics as statistics
-import pypeline.phased_array.LofarTelescope as instrument
+import pypeline.phased_array.Lofar.LofarTelescope as instrument
 
 
 # Observation

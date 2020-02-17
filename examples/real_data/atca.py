@@ -14,7 +14,7 @@ import astropy.coordinates as coord
 import imot_tools.io.s2image as s2image
 import imot_tools.math.sphere.grid as grid
 import imot_tools.math.sphere.transform as transform
-import pypeline.phased_array.AtcaData as data
+import pypeline.phased_array.Atca.AtcaData as data
 import pypeline.phased_array.beamforming as beamforming
 import pypeline.phased_array.bluebild.data_processor as bb_dp
 import pypeline.phased_array.bluebild.gram as bb_gr

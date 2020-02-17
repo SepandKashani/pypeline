@@ -6,7 +6,7 @@
 
 import numpy as np
 import pandas as pd
-import ImoT_tools.imot_tools.util.argcheck as chk
+import imot_tools.util.argcheck as chk
 import casacore.tables as ct
 import pypeline.phased_array.instrument as instrument
 import pypeline.phased_array.beamforming as beamforming

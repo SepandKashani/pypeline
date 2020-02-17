@@ -22,8 +22,8 @@ import pypeline.phased_array.data_gen.source as source
 import pypeline.phased_array.data_gen.statistics as statistics
 
 
-import pypeline.phased_array.AtcaTelescope as instrument
-import pypeline.phased_array.AtcaData as data
+import pypeline.phased_array.Atca.AtcaTelescope as instrument
+import pypeline.phased_array.Atca.AtcaData as data
 
 
 # Observation
