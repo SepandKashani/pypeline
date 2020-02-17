@@ -23,28 +23,30 @@ import pypeline.phased_array.data_gen.statistics as statistics
 
 
 import pypeline.phased_array.Atca.AtcaTelescope as instrument
-import pypeline.phased_array.Atca.AtcaData as data
+
 
 
 # Observation
 obs_start = atime.Time(55679.80133020458, scale="utc", format="mjd")
-FoV, frequency = np.deg2rad(0.39), 2867e+09
-wl = 0.10456660551098709
+field_center=coord.SkyCoord(-0.807622 * u.rad, -0.65556 * u.rad)
+FoV, frequency = np.deg2rad(0.39), 2867e+06
+wl = constants.speed_of_light/frequency
 
 # Instrument
-#N_station = 6
-ms_file = "/home/das/ATNF_data/ms_data/2051-377-2868.ms/"
-ms = data.AtcaData(ms_file)
-# mb_cfg = [(_, _, field_center) for _ in range(N_station)]
-#mb = beamforming.MatchedBeamformerBlock(mb_cfg)
+N_station = 6
+#ms_file = "/home/das/ATNF_data/ms_data/2051-377-2868.ms/"
+#ms = data.AtcaData(ms_file)
+dev=instrument.AtcaTelescope("6A")
+mb_cfg = [(_, _, field_center) for _ in range(N_station)]
+mb = beamforming.MatchedBeamformerBlock(mb_cfg)
 gram = bb_gr.GramBlock()
 
 # Data generation
 T_integration = 10
 sky_model = source.SkyEmission([(coord.SkyCoord('20h54m54.171s -37d33m51.11s', frame='icrs'),0.15)])
 vis = statistics.VisibilityGeneratorBlock(sky_model, T_integration, fs=196000, SNR=np.inf)
-#time = obs_start + (T_integration * u.s) * np.arange(815)
-time = ms.time['TIME']
+time = obs_start + (T_integration * u.s) * np.arange(815)
+#time = ms.time['TIME']
 #import pdb; pdb.set_trace()
 obs_end = time[-1]
 
@@ -52,15 +54,15 @@ obs_end = time[-1]
 N_level = 4
 N_bits = 32
 
-px_grid = grid.uniform(direction=ms.field_center.cartesian.xyz.value,FoV=FoV,size=[600,600])
+px_grid = grid.uniform(direction=field_center.cartesian.xyz.value,FoV=FoV,size=[600,600])
 
 
 ### Intensity Field ===========================================================
 # Parameter Estimation
 I_est = bb_pe.IntensityFieldParameterEstimator(N_level, sigma=1)
 for t in ProgressBar(time[::200]):
-    XYZ = ms.instrument(t)
-    W = ms.beamformer(XYZ, wl)
+    XYZ = dev(t)
+    W = mb(XYZ, wl)
     S = vis(XYZ, W, wl)
     G = gram(XYZ, W, wl)
     #import pdb; pdb.set_trace()
@@ -71,8 +73,8 @@ N_eig, c_centroid = I_est.infer_parameters()
 I_dp = bb_dp.IntensityFieldDataProcessorBlock(N_eig, c_centroid)
 I_mfs =bb_sd.Spatial_IMFS_Block(wl,px_grid,N_level,N_bits)
 for t in ProgressBar(time[::1]):
-    XYZ = ms.instrument(t)
-    W = ms.beamformer(XYZ, wl)
+    XYZ = dev(t)
+    W = mb(XYZ, wl)
     S = vis(XYZ, W, wl)
     G = gram(XYZ, W, wl)
 
@@ -84,8 +86,8 @@ I_std, I_lsq = I_mfs.as_image()
 # Parameter Estimation
 S_est = bb_pe.SensitivityFieldParameterEstimator(sigma=1)
 for t in ProgressBar(time[::200]):
-    XYZ = ms.instrument(t)
-    W = ms.beamformer(XYZ, wl)
+    XYZ = dev(t)
+    W = mb(XYZ, wl)
     G = gram(XYZ, W, wl)
 
     S_est.collect(G)
@@ -95,8 +97,8 @@ N_eig = S_est.infer_parameters()
 S_dp = bb_dp.SensitivityFieldDataProcessorBlock(N_eig)
 S_mfs = bb_sd.Spatial_IMFS_Block(wl,px_grid,1,N_bits)
 for t in ProgressBar(time[::50]):
-    XYZ = ms.instrument(t)
-    W = ms.beamformer(XYZ, wl)
+    XYZ = dev(t)
+    W = mb(XYZ, wl)
     G = gram(XYZ, W, wl)
 
     D, V = S_dp(G)
