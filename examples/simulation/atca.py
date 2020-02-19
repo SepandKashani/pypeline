@@ -1,3 +1,9 @@
+#####################################################################
+# Atca.py
+# ================
+# Author : Dewan Arun Singh (19884240@student.westernsydney.edu.au)
+#####################################################################
+
 """
 Simulated ATCA imaging with Bluebild (Standard Synthesis).
 """
@@ -108,10 +114,10 @@ _, S = S_mfs.as_image()
 # Plot Results ================================================================
 fig, ax = plt.subplots(ncols=2)
 I_std_eq = s2image.Image(I_std.data / S.data, I_std.grid)
-I_std_eq.draw(catalog=sky_model.xyz.T, ax=ax[0])
+I_std_eq.draw(catalog=sky_model.xyz.T, ax=ax[0],show_gridlines=False)
 ax[0].set_title("Bluebild Standardized Image")
 
 I_lsq_eq = s2image.Image(I_lsq.data / S.data, I_lsq.grid)
-I_lsq_eq.draw(catalog=sky_model.xyz.T, ax=ax[1])
+I_lsq_eq.draw(catalog=sky_model.xyz.T, ax=ax[1], show_gridlines=False)
 ax[1].set_title("Bluebild Least-Squares Image")
 fig.show()
