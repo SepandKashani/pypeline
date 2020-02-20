@@ -29,8 +29,24 @@ def simulate(start, fc, FoV, freq, N_station, telescope,variant=None):
     TELESCOPES = ['atca','lofar','mwa']
     if not telescope.lower() in TELESCOPES:
         raise ValueError (f"The value in telescope argument should be one of {TELESCOPES}")
-    else:
-        if telescope.lower() == 'atca':
-            import examples.simulation.atca as atca
-            atca.atca(start, fc, FoV, freq, N_station, telescope,variant)            
+    
+    def atca():
+        from examples.simulation.atca import atca
+        atca(start, fc, FoV, freq, N_station, telescope,variant)
+    
+    def lofar():
+        raise NotImplementedError
+
+    def mwa():
+        raise NotImplementedError
+
+    switcher = {
+        'atca' : atca,
+        'lofar' : lofar,
+        'mwa' : mwa, 
+    }
+   
+
+    func = switcher.get(telescope,"Nothing") 
+    func()        
 
