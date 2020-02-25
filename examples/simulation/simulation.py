@@ -4,12 +4,17 @@
 # Author : Dewan Arun Singh (19884240@student.westernsydney.edu.au)
 #####################################################################
 
+"""
+Common file for simulation of all telescopes. Removes the requirement for interacting with scripts
+directly. Passing the required arguments would be enough to simulate using different values and telescopes.
+"""
+
 def simulate(start, fc, FoV, freq, N_station, telescope,variant=None):
     """
     interative function for simulating telescopes in pypeline.
-    ======================================
+   -----------------------------------------
     Parameters
-    ======================================
+    ----------------------------------------
     start : float
             A starting point for observation time
     fc : float
@@ -23,7 +28,8 @@ def simulate(start, fc, FoV, freq, N_station, telescope,variant=None):
                 Name of the telescope. Currently supported telescopes are: atca, lofar, & mwa.
     variant : string
             Only applies if you are imaging ATCA telescope. Is string consisting of one of the possible 20 configurations in the ATCA configuration array.
-    ----------------------------------------------
+    
+    ----------------------------------------
 
     """
     TELESCOPES = ['atca','lofar','mwa']
@@ -32,7 +38,7 @@ def simulate(start, fc, FoV, freq, N_station, telescope,variant=None):
     
     def atca():
         from examples.simulation.atca import atca
-        atca(start, fc, FoV, freq, N_station, telescope,variant)
+        atca(start, fc, FoV, freq, N_station,variant)
     
     def lofar():
         raise NotImplementedError

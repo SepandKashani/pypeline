@@ -33,7 +33,7 @@ import pypeline.phased_array.Atca.AtcaTelescope as instrument
 
 @chk.check(dict(start=chk.is_instance(float),fc=chk.is_array_like,FoV=chk.is_instance(float),freq=chk.is_instance(float),
             N_station=chk.is_integer,telescope=chk.is_instance(str),variant=chk.is_instance(str)))
-def atca(start, fc, FoV, freq, N_station, telescope,variant=None):
+def atca(start, fc, FoV, freq, N_station,variant=None):
     # Observation
     obs_start = atime.Time(start, scale="utc", format="mjd")
     field_center=coord.SkyCoord(fc[0] * u.rad, fc[1] * u.rad)
@@ -43,12 +43,14 @@ def atca(start, fc, FoV, freq, N_station, telescope,variant=None):
     dev=instrument.AtcaTelescope(variant=variant)
     mb_cfg = [(_, _, field_center) for _ in range(N_station)]
     mb = beamforming.MatchedBeamformerBlock(mb_cfg)
+    #import pdb; pdb.set_trace()
     gram = bb_gr.GramBlock()
 
     # Data generation
     T_integration = 10
-    sky_model = source.SkyEmission([(coord.SkyCoord('20h54m54.171s -37d33m51.11s', frame='icrs'),0.15)])
+    sky_model = source.SkyEmission([(coord.SkyCoord('20h54m54.171s -37d33m51.11s', frame='icrs'),0.05)])
     vis = statistics.VisibilityGeneratorBlock(sky_model, T_integration, fs=196000, SNR=np.inf)
+    #np.save('/home/das/Radio_Astronomy/synthetic_vis',vis)
     time = obs_start + (T_integration * u.s) * np.arange(815)
     #time = ms.time['TIME']
     #import pdb; pdb.set_trace()
@@ -81,6 +83,7 @@ def atca(start, fc, FoV, freq, N_station, telescope,variant=None):
         W = mb(XYZ, wl)
         S = vis(XYZ, W, wl)
         G = gram(XYZ, W, wl)
+        
 
         D, V, c_idx = I_dp(S, G)
         _ = I_mfs(D, V, XYZ.data, W.data, c_idx)
