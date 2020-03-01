@@ -25,7 +25,7 @@ import pypeline.phased_array.data_gen.source as source
 import pypeline.phased_array.measurement_set as measurement_set
 
 # Instrument
-ms_file = "/home/das/ATNF_data/ms_data/2051-377-2868.ms/"
+ms_file = "/home/das/Radio_Astronomy/ATNF_data/ms_data/2051-377.1332.ms/"
 ms = data.AtcaData(ms_file)
 gram = bb_gr.GramBlock()
 
@@ -33,7 +33,7 @@ gram = bb_gr.GramBlock()
 luc = coord.SkyCoord('20h55m37.004s -37d25m12.14s')
 rbc = coord.SkyCoord('20h54m11.712s -37d42m1.68s')
 FoV = luc.separation(rbc).to_value(u.rad)
-channel_id = 257
+channel_id = 65
 frequency = ms.channels["FREQUENCY"][channel_id]
 wl = constants.speed_of_light / frequency.to_value(u.Hz)
 # sky_model = source.from_tgss_catalog(ms.field_center, FoV, N_src=1)
@@ -43,7 +43,7 @@ wl = constants.speed_of_light / frequency.to_value(u.Hz)
 N_level = 4
 N_bits = 32
 N = ms.instrument.nyquist_rate(wl)
-px_grid = grid.uniform(direction=ms.field_center.cartesian.xyz.value, FoV=FoV, size=[800, 800])
+px_grid = grid.uniform(direction=ms.field_center.cartesian.xyz.value, FoV=FoV, size=[600,600])
 
 
 ### Intensity Field ===========================================================
