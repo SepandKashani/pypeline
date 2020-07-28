@@ -94,7 +94,7 @@ for t in ProgressBar(time[::1]):
 
     D, V, c_idx = I_dp(S, G)
     _ = I_mfs(D, V, XYZ.data, W.data, c_idx)
-np.save('/home/das/Radio_Astronomy/sim_data',sim_data)    
+#np.save('/home/das/Radio_Astronomy/sim_data',sim_data)    
 I_std, I_lsq = I_mfs.as_image()
 
 ### Sensitivity Field =========================================================
